@@ -1,0 +1,8 @@
+{
+  "name": "@mail-sender/web",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite --host 127.0.0.1", "build": "tsc --noEmit && vite build", "preview": "vite preview --host 127.0.0.1", "check": "tsc --noEmit" },
+  "dependencies": { "react": "^19.2.0", "react-dom": "^19.2.0", "react-router-dom": "^7.18.4", "@tanstack/react-query": "^5.90.0" },
+  "devDependencies": { "vite": "^7.1.0", "typescript": "^5.9.0", "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0", "@vitejs/plugin-react": "^4.7.0" }
+}

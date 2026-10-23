@@ -1,0 +1,34 @@
+{
+  "name": "@mail-sender/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "worker": "tsx src/worker/runner.ts",
+    "worker:dev": "tsx watch src/worker/runner.ts",
+    "worker:start": "node dist/worker/runner.js",
+    "migrate": "tsx src/database/migrate.ts",
+    "migrate:built": "node dist/database/migrate.js",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "csv-parse": "^7.0.3",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "googleapis": "^166.0.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^10.2.1",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.15.0",
+    "@types/nodemailer": "^7.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

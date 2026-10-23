@@ -1,0 +1,11 @@
+{
+  "name": "mail-sender-monorepo",
+  "private": true,
+  "workspaces": ["apps/api", "apps/web"],
+  "scripts": {
+    "dev": "npm run migrate -w @mail-sender/api && concurrently -k \"npm run dev -w @mail-sender/api\" \"npm run worker:dev -w @mail-sender/api\" \"npm run dev -w @mail-sender/web\"",
+    "build": "npm run build -w @mail-sender/api && npm run build -w @mail-sender/web",
+    "check": "npm run check -w @mail-sender/api && npm run check -w @mail-sender/web"
+  },
+  "devDependencies": { "concurrently": "^9.2.1" }
+}
