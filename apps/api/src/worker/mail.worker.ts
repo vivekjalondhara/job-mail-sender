@@ -1,8 +1,8 @@
-import { Op } from 'sequelize';
 import { Campaign, MailJob } from '../database/models.js';
 import { env } from '../config/env.js';
 import { senderReady, sendMessage } from '../modules/mailer/index.js';
 import { render, type CsvRow } from '../modules/mailer/template.js';
+import { sendsInLastDay } from '../modules/mailer/quota.js';
 
 let busy = false;
 let lastAttempt = 0;
@@ -16,13 +16,7 @@ export async function processNextJob(): Promise<void> {
   if (!await senderReady()) return;
   const campaign = await Campaign.findOne({ where: { status: 'running' }, order: [['id', 'ASC']] });
   if (!campaign) return;
-  const windowStart = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const used = await MailJob.count({ where: {
-    [Op.or]: [
-      { status: 'sent', sentAt: { [Op.gte]: windowStart } },
-      { status: { [Op.in]: ['uncertain', 'sending'] }, updatedAt: { [Op.gte]: windowStart } },
-    ],
-  } });
+  const used = await sendsInLastDay();
   if (used >= env.dailySendLimit) { await campaign.update({ status: 'paused' }); return; }
   const job = await MailJob.findOne({ where: { campaignId: campaign.id, status: 'pending' }, order: [['id', 'ASC']] });
   if (!job) { await campaign.update({ status: 'complete' }); return; }

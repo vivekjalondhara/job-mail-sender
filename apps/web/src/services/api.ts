@@ -1,4 +1,4 @@
-import type { CampaignDetail, CampaignSummary, Preview, SenderStatus, Template } from './types';
+import type { CampaignDetail, CampaignSummary, DirectSend, Preview, SenderStatus, Template } from './types';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(path, options);
@@ -9,6 +9,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   status: () => request<SenderStatus>('/api/status'),
+  directSends: () => request<DirectSend[]>('/api/direct-sends'),
+  sendDirect: (data: FormData) => request<{ id: number; messageId: string; status: 'sent' }>('/api/direct-sends', { method: 'POST', body: data }),
   disconnect: () => request<{ ok: boolean }>('/api/disconnect', { method: 'POST' }),
   templates: () => request<Template[]>('/api/templates'),
   saveTemplate: (value: Pick<Template, 'name' | 'subject' | 'body'>) => request<Template>('/api/templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value) }),

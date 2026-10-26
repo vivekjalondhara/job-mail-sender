@@ -21,7 +21,7 @@ Requires Node.js 22 or newer.
 npm install
 ```
 
-If `.env` does not exist, copy `.env.example` to `.env`. The file needs a 64-character hex `APP_ENCRYPTION_KEY`; generate one with `openssl rand -hex 32`. This workspace already has a locally generated key in its ignored `.env` file. Keep that key if you want to keep using its saved Gmail connection.
+If `.env` does not exist, copy `.env.example` to `.env`. The file needs a 64-character hex `APP_ENCRYPTION_KEY`; generate one with `openssl rand -hex 32` and set it in `.env`. Keep the key if you want to keep using a saved Gmail connection; changing it makes the stored token unreadable.
 
 Choose **one** sending mode in `.env`:
 
@@ -59,7 +59,11 @@ npm run dev
 
 `npm run dev` applies pending migrations, then starts the API, worker, and Vite. Open **http://127.0.0.1:5173**. The API runs at `127.0.0.1:3100`. Stop any older `npm run dev` process before starting another one, so these ports are free.
 
-The routes are `/` for Overview, `/templates` for creating and editing templates, `/campaigns/new` for CSV preview, `/campaigns` for the campaign table, and `/campaigns/:id` for progress and recipient results. In Gmail mode, choose **Connect Gmail** first. In SMTP mode, the configured sender appears on Overview. A new campaign starts paused; press **Start / resume** on its detail page after reviewing recipients. Editing a template affects new campaigns; existing campaigns retain their saved subject and message.
+The routes are `/` for Overview, `/send` for a direct email, `/templates` for creating and editing templates, `/campaigns/new` for CSV preview, `/campaigns` for the campaign table, and `/campaigns/:id` for progress and recipient results. In Gmail mode, choose **Connect Gmail** first. In SMTP mode, the configured sender appears on Overview. A new campaign starts paused; press **Start / resume** on its detail page after reviewing recipients. Editing a template affects new campaigns; existing campaigns retain their saved subject and message.
+
+On **Send email**, enter one recipient, subject, and message, then optionally attach up to five files totaling 10 MB. Press **Send email** to submit immediately through the configured Gmail or SMTP sender. Recent direct sends show their submission status. A `sent` status means the provider accepted the message; it does not guarantee delivery. If a send is `uncertain`, check your Sent folder or provider logs before retrying. Direct sends count toward the same local 24-hour limit as campaign messages.
+
+Set `SENDER_NAME` in `.env` to show a name alongside the sender address in recipients' inboxes. Messages include both plain-text and HTML versions so paragraph spacing displays consistently across email clients.
 
 The CSV must have an `email` column. Other column names can appear in your template as `{{column_name}}`. Download the sample CSV from the app. Headers are converted to lowercase; use simple names containing letters, numbers, and underscores for placeholders.
 

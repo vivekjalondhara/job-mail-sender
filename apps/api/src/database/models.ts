@@ -73,3 +73,26 @@ MailJob.init({
 
 Campaign.hasMany(MailJob, { foreignKey: 'campaignId', as: 'jobs' });
 MailJob.belongsTo(Campaign, { foreignKey: 'campaignId', as: 'campaign' });
+
+export class DirectSend extends Model<InferAttributes<DirectSend>, InferCreationAttributes<DirectSend>> {
+  declare id: CreationOptional<number>;
+  declare recipient: string;
+  declare subject: string;
+  declare body: CreationOptional<string | null>;
+  declare attachmentNames: CreationOptional<string>;
+  declare status: 'sending' | 'sent' | 'failed' | 'uncertain';
+  declare messageId: CreationOptional<string | null>;
+  declare error: CreationOptional<string | null>;
+  declare createdAt: CreationOptional<Date>;
+}
+DirectSend.init({
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  recipient: { type: DataTypes.STRING, allowNull: false },
+  subject: { type: DataTypes.STRING, allowNull: false },
+  body: { type: DataTypes.TEXT, allowNull: true },
+  attachmentNames: { type: DataTypes.TEXT, allowNull: false, defaultValue: '[]', field: 'attachment_names' },
+  status: { type: DataTypes.STRING, allowNull: false },
+  messageId: { type: DataTypes.STRING, allowNull: true, field: 'message_id' },
+  error: { type: DataTypes.TEXT, allowNull: true },
+  createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW, field: 'created_at' },
+}, { sequelize, tableName: 'direct_sends', timestamps: false });

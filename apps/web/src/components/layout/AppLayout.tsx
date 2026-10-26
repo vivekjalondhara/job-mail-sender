@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 const links = [
   { to: '/', label: 'Overview', icon: '◫' },
   { to: '/templates', label: 'Templates', icon: '✎' },
+  { to: '/send', label: 'Send email', icon: '✉' },
   { to: '/campaigns/new', label: 'New campaign', icon: '↗' },
   { to: '/campaigns', label: 'Campaigns', icon: '▤' },
 ];

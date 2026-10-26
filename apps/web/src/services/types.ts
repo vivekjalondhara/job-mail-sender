@@ -47,3 +47,14 @@ export interface Preview {
   recipients: Array<{ to: string; subject: string }>;
   samples: Array<{ to: string; subject: string; body: string }>;
 }
+export interface DirectSend {
+  id: number;
+  recipient: string;
+  subject: string;
+  body: string | null;
+  attachmentNames: string;
+  status: 'sending' | 'sent' | 'failed' | 'uncertain';
+  messageId: string | null;
+  error: string | null;
+  createdAt: string;
+}

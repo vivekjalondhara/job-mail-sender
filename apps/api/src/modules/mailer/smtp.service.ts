@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../../config/env.js';
+import { htmlFromPlainText } from './message-format.js';
 
 export function smtpStatus(): { ready: boolean; sender: string | null; error?: string } {
   const missing = [!env.smtpHost && 'SMTP_HOST', !env.smtpUser && 'SMTP_USER', !env.smtpPass && 'SMTP_PASS', !env.smtpFrom && 'SMTP_FROM'].filter(Boolean);
@@ -10,7 +11,9 @@ export function smtpStatus(): { ready: boolean; sender: string | null; error?: s
   return { ready: true, sender: env.smtpFrom };
 }
 
-export async function sendSmtp(to: string, subject: string, body: string): Promise<string> {
+export type MailAttachment = { filename: string; content: Buffer; contentType?: string };
+
+export async function sendSmtp(to: string, subject: string, body: string, attachments: MailAttachment[] = []): Promise<string> {
   const status = smtpStatus();
   if (!status.ready) throw new Error(status.error);
   const transport = nodemailer.createTransport({
@@ -24,7 +27,8 @@ export async function sendSmtp(to: string, subject: string, body: string): Promi
     socketTimeout: 30000,
   });
   try {
-    const result = await transport.sendMail({ from: env.smtpFrom, to, subject, text: body });
+    const from = env.senderName ? { name: env.senderName, address: env.smtpFrom } : env.smtpFrom;
+    const result = await transport.sendMail({ from, to, subject, text: body, html: htmlFromPlainText(body), attachments });
     if (!result.accepted.includes(to)) {
       const error = new Error(`SMTP server rejected ${to}`) as Error & { code: string };
       error.code = 'EENVELOPE';

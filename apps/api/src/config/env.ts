@@ -33,6 +33,7 @@ export const env = {
   smtpUser: process.env.SMTP_USER || '',
   smtpPass: process.env.SMTP_PASS || '',
   smtpFrom: process.env.SMTP_FROM || '',
+  senderName: process.env.SENDER_NAME?.trim() || '',
 };
 
 if (!/^[a-f0-9]{64}$/i.test(env.encryptionKey)) {

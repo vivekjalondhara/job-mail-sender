@@ -1,6 +1,9 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { google } from 'googleapis';
+import MailComposer from 'nodemailer/lib/mail-composer/index.js';
 import { env } from '../../config/env.js';
+import type { MailAttachment } from './smtp.service.js';
+import { htmlFromPlainText } from './message-format.js';
 
 const sendScope = 'https://www.googleapis.com/auth/gmail.send';
 
@@ -36,21 +39,13 @@ export function decryptToken(value: string): string {
   return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
 }
 
-export async function sendGmail(account: { email: string; refreshToken: string }, to: string, subject: string, body: string): Promise<string> {
+export async function sendGmail(account: { email: string; refreshToken: string }, to: string, subject: string, body: string, attachments: MailAttachment[] = []): Promise<string> {
   const auth = client();
   auth.setCredentials({ refresh_token: decryptToken(account.refreshToken) });
   const gmail = google.gmail({ version: 'v1', auth });
-  const raw = [
-    `From: ${account.email}`,
-    `To: ${to}`,
-    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    Buffer.from(body).toString('base64').replace(/.{1,76}/g, '$&\r\n').trimEnd(),
-  ].join('\r\n');
-  const response = await gmail.users.messages.send({ userId: 'me', requestBody: { raw: Buffer.from(raw).toString('base64url') } });
+  const from = env.senderName ? { name: env.senderName, address: account.email } : account.email;
+  const raw = await new MailComposer({ from, to, subject, text: body, html: htmlFromPlainText(body), attachments }).compile().build();
+  const response = await gmail.users.messages.send({ userId: 'me', requestBody: { raw: raw.toString('base64url') } });
   if (!response.data.id) throw new Error('Gmail returned no message ID. Check Sent before retrying.');
   return response.data.id;
 }

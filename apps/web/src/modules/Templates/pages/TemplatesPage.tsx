@@ -1,7 +1,9 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import type { Template } from '../../../services/types';
+import MessagePreview from '../../../components/ui/MessagePreview';
 
 type TemplateInput = Pick<Template, 'name' | 'subject' | 'body'>;
 
@@ -15,6 +17,7 @@ export default function TemplatesPage() {
   const [body, setBody] = useState('');
   const [message, setMessage] = useState('');
   const [messageError, setMessageError] = useState(false);
+  const [viewing, setViewing] = useState<Template | null>(null);
 
   function resetForm() {
     setEditingId(null);
@@ -68,6 +71,7 @@ export default function TemplatesPage() {
         <h2>Templates<span className="period">.</span></h2>
         <p>Write the subject and message once. Use CSV columns like <code>{'{{name}}'}</code> to personalize them.</p>
       </div>
+      <Link className="button outline" to="/send">Send one email ↗</Link>
     </div>
     <div className="card form-card" ref={formRef}>
       <h3 className="form-heading">{editingId === null ? 'Create template' : 'Edit template'}</h3>
@@ -96,10 +100,11 @@ export default function TemplatesPage() {
               <td><strong>{template.name}</strong></td>
               <td>{template.subject}</td>
               <td>{new Date(template.createdAt).toLocaleDateString()}</td>
-              <td><button type="button" className="table-action" onClick={() => edit(template)} disabled={saving}>Edit ↗</button></td>
+              <td><div className="table-actions"><button type="button" className="table-action" onClick={() => setViewing(template)}>View</button><button type="button" className="table-action" onClick={() => edit(template)} disabled={saving}>Edit ↗</button></div></td>
             </tr>)}
           </tbody></table></div>}
       </div>
     </section>
+    {viewing && <MessagePreview title={viewing.name} subject={viewing.subject} body={viewing.body} note="Placeholders appear as written. Campaign previews show them with CSV values." onClose={() => setViewing(null)}/>}
   </>;
 }
