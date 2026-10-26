@@ -58,3 +58,11 @@ export interface DirectSend {
   error: string | null;
   createdAt: string;
 }
+
+export interface DirectSendsPage {
+  items: DirectSend[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

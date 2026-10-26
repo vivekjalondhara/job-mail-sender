@@ -12,9 +12,18 @@ const upload = multer({ storage: multer.memoryStorage(), limits: {
   files: maxAttachments, fileSize: maxTotalBytes, fieldSize: 100 * 1024, fields: 3,
 } });
 
-directRouter.get('/api/direct-sends', async (_req, res) => {
-  const sends = await DirectSend.findAll({ order: [['id', 'DESC']], limit: 20 });
-  res.json(sends);
+directRouter.get('/api/direct-sends', async (req, res) => {
+  const page = Number(req.query.page ?? 1);
+  const pageSize = Number(req.query.pageSize ?? 10);
+  if (!Number.isSafeInteger(page) || page < 1 || ![10, 25, 50].includes(pageSize) || !Number.isSafeInteger((page - 1) * pageSize)) {
+    res.status(400).json({ error: 'Invalid page or page size.' }); return;
+  }
+  const { count, rows } = await DirectSend.findAndCountAll({
+    order: [['id', 'DESC']],
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  });
+  res.json({ items: rows, total: count, page, pageSize, totalPages: Math.ceil(count / pageSize) });
 });
 
 directRouter.post('/api/direct-sends', upload.array('attachments', maxAttachments), async (req, res) => {
